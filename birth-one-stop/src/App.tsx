@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ConfigProvider, App as AntdApp } from 'antd';
+import { ConfigProvider, App as AntdApp, message } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import MainLayout from './components/Layout/MainLayout';
 import QueueReception from './pages/QueueReception';
@@ -39,8 +39,19 @@ function App() {
   };
 
   const handleOrchestrateNext = (caseInfo: CaseInfo) => {
-    setCurrentCase(caseInfo);
+    const updatedCase: CaseInfo = {
+      ...caseInfo,
+      status: '审核中',
+      currentNode: '部门审核',
+      flowHistory: caseInfo.flowHistory.map(node => {
+        if (node.nodeName === '联办编排') return { ...node, status: '已完成' as const, operator: '王窗口', time: new Date().toLocaleString() };
+        if (node.nodeName === '审核发证') return { ...node, status: '进行中' as const };
+        return node;
+      }),
+    };
+    setCurrentCase(updatedCase);
     setCurrentModule('archive');
+    message.success('已提交审核，办件进入审核状态');
   };
 
   const handleBackToVerify = () => {

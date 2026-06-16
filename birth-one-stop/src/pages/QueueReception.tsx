@@ -74,6 +74,7 @@ const QueueReception: React.FC<QueueReceptionProps> = ({ onCaseSelect, onStartVe
       caseNo: `CS${dayjs().format('YYYYMMDD')}${String(cases.length + 1).padStart(4, '0')}`,
       queueNo: `${values.queueType}${String(cases.length + 1).padStart(3, '0')}`,
       status: '待受理',
+      applicantType: values.applicantType || 'mother',
       applicant: {
         id: `a${Date.now()}`,
         name: values.applicantName,
@@ -181,7 +182,15 @@ const QueueReception: React.FC<QueueReceptionProps> = ({ onCaseSelect, onStartVe
       title: '办事人类型',
       key: 'applicantType',
       width: 100,
-      render: () => <Tag color="blue">母亲</Tag>,
+      render: (_: any, record: CaseInfo) => {
+        const typeMap: Record<string, { label: string; color: string }> = {
+          father: { label: '父亲', color: 'blue' },
+          mother: { label: '母亲', color: 'pink' },
+          other: { label: '其他委托人', color: 'orange' },
+        };
+        const info = typeMap[record.applicantType] || typeMap.mother;
+        return <Tag color={info.color}>{info.label}</Tag>;
+      },
     },
     {
       title: '联办事项',

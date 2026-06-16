@@ -55,6 +55,7 @@ export const mockCases: CaseInfo[] = [
     caseNo: 'CS202406170001',
     queueNo: 'A001',
     status: '受理中',
+    applicantType: 'father',
     applicant: {
       id: 'a1',
       name: '张三',
@@ -105,6 +106,7 @@ export const mockCases: CaseInfo[] = [
     caseNo: 'CS202406170002',
     queueNo: 'A002',
     status: '待受理',
+    applicantType: 'mother',
     applicant: {
       id: 'a2',
       name: '王五',
@@ -158,6 +160,7 @@ export const mockCases: CaseInfo[] = [
     caseNo: 'CS202406170003',
     queueNo: 'A003',
     status: '补正',
+    applicantType: 'mother',
     applicant: {
       id: 'a3',
       name: '陈七',
@@ -213,6 +216,7 @@ export const mockCases: CaseInfo[] = [
     caseNo: 'CS202406160010',
     queueNo: 'B010',
     status: '已办结',
+    applicantType: 'other',
     applicant: {
       id: 'a4',
       name: '刘九',

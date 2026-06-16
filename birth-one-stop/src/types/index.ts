@@ -53,6 +53,7 @@ export interface CaseInfo {
   caseNo: string;
   queueNo: string;
   status: '待受理' | '受理中' | '补正' | '审核中' | '已办结' | '已退回';
+  applicantType: string;
   applicant: ApplicantInfo;
   birthInfo: BirthInfo;
   father: ParentInfo;

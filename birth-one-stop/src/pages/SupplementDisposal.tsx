@@ -86,15 +86,14 @@ const SupplementDisposal: React.FC<SupplementDisposalProps> = ({ currentCase, on
       return;
     }
     if (selectedCase) {
-      const updatedCases = cases.map(c => 
-        c.caseNo === selectedCase.caseNo
-          ? { ...c, status: '补正', currentNode: '补正处置' }
-          : c
-      );
+      const updatedCases = cases.filter(c => c.caseNo !== selectedCase.caseNo);
       setCases(updatedCases);
-      message.success('补正通知已发送');
+      setSelectedCase(null);
+      setSelectedOpinions([]);
+      setCustomOpinion('');
       setIsNoticeModalVisible(false);
-      onComplete?.(selectedCase);
+      message.success('补正通知已发送，办件已进入等待补正材料状态');
+      onComplete?.({ ...selectedCase, status: '受理中', currentNode: '等待补正材料回交' });
     }
   };
 

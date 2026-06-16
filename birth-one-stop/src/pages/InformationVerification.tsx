@@ -42,7 +42,10 @@ interface InformationVerificationProps {
 
 const InformationVerification: React.FC<InformationVerificationProps> = ({ currentCase, onNext, onSupplement }) => {
   const [caseInfo, setCaseInfo] = useState<CaseInfo>(currentCase || mockCases[0]);
-  const [verifying, setVerifying] = useState(false);
+  const [verifyingBirth, setVerifyingBirth] = useState(false);
+  const [verifyingParent, setVerifyingParent] = useState(false);
+  const [verifyingMaterial, setVerifyingMaterial] = useState(false);
+  const [verifyingAutoRead, setVerifyingAutoRead] = useState(false);
   const [verificationResult, setVerificationResult] = useState<{
     birthInfo: boolean | null;
     fatherId: boolean | null;
@@ -56,21 +59,21 @@ const InformationVerification: React.FC<InformationVerificationProps> = ({ curre
   });
 
   const handleVerifyBirthInfo = () => {
-    setVerifying(true);
+    setVerifyingBirth(true);
     setTimeout(() => {
       setVerificationResult(prev => ({ ...prev, birthInfo: true }));
-      setVerifying(false);
+      setVerifyingBirth(false);
       message.success('出生医学信息核验通过');
     }, 1500);
   };
 
   const handleVerifyParentIds = () => {
-    setVerifying(true);
+    setVerifyingParent(true);
     setTimeout(() => {
       const fatherMatch = caseInfo.father.name && caseInfo.father.idNumber.length === 18;
       const motherMatch = caseInfo.mother.name && caseInfo.mother.idNumber.length === 18;
       setVerificationResult(prev => ({ ...prev, fatherId: fatherMatch, motherId: motherMatch }));
-      setVerifying(false);
+      setVerifyingParent(false);
       if (fatherMatch && motherMatch) {
         message.success('父母证件信息核验通过');
       } else {
@@ -80,11 +83,11 @@ const InformationVerification: React.FC<InformationVerificationProps> = ({ curre
   };
 
   const handleVerifyMaterials = () => {
-    setVerifying(true);
+    setVerifyingMaterial(true);
     setTimeout(() => {
       const allRequiredProvided = caseInfo.materials.filter(m => m.required).every(m => m.status === '已提供');
       setVerificationResult(prev => ({ ...prev, materials: allRequiredProvided }));
-      setVerifying(false);
+      setVerifyingMaterial(false);
       if (allRequiredProvided) {
         message.success('材料核验通过');
       } else {
@@ -94,7 +97,7 @@ const InformationVerification: React.FC<InformationVerificationProps> = ({ curre
   };
 
   const handleAutoRead = () => {
-    setVerifying(true);
+    setVerifyingAutoRead(true);
     setTimeout(() => {
       const updatedCase = {
         ...caseInfo,
@@ -115,7 +118,7 @@ const InformationVerification: React.FC<InformationVerificationProps> = ({ curre
         motherId: true,
         materials: false,
       });
-      setVerifying(false);
+      setVerifyingAutoRead(false);
       message.success('电子证照信息读取成功');
     }, 2000);
   };
@@ -202,7 +205,7 @@ const InformationVerification: React.FC<InformationVerificationProps> = ({ curre
           <div className="text-sm text-gray-500">
             办件编号：<span className="font-mono font-medium text-blue-600">{caseInfo.caseNo}</span>
           </div>
-          <Button icon={<ReloadOutlined />} onClick={handleAutoRead} loading={verifying}>
+          <Button icon={<ReloadOutlined />} onClick={handleAutoRead} loading={verifyingAutoRead}>
             读取电子证照
           </Button>
         </Space>
@@ -220,13 +223,13 @@ const InformationVerification: React.FC<InformationVerificationProps> = ({ curre
             </div>
           </div>
           <Space>
-            <Button type="primary" onClick={handleVerifyBirthInfo} loading={verifying && verificationResult.birthInfo === null}>
+            <Button type="primary" onClick={handleVerifyBirthInfo} loading={verifyingBirth}>
               核验出生信息
             </Button>
-            <Button onClick={handleVerifyParentIds} loading={verifying && verificationResult.fatherId === null}>
+            <Button onClick={handleVerifyParentIds} loading={verifyingParent}>
               核验父母证件
             </Button>
-            <Button onClick={handleVerifyMaterials} loading={verifying && verificationResult.materials === null}>
+            <Button onClick={handleVerifyMaterials} loading={verifyingMaterial}>
               核验材料清单
             </Button>
           </Space>
@@ -395,7 +398,14 @@ const InformationVerification: React.FC<InformationVerificationProps> = ({ curre
           <Button>保存草稿</Button>
           <Button 
             type="primary" 
-            onClick={() => onNext?.(caseInfo)}
+            onClick={() => {
+              const hasMissingRequired = caseInfo.materials.some(m => m.required && m.status === '缺失');
+              if (hasMissingRequired) {
+                message.error('存在必选材料缺失，请先补正后再进入下一步');
+                return;
+              }
+              onNext?.(caseInfo);
+            }}
             disabled={!verificationResult.birthInfo || !verificationResult.fatherId || !verificationResult.motherId}
           >
             下一步：联办编排
